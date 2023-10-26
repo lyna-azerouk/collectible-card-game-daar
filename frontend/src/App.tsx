@@ -4,11 +4,10 @@ import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
 import axios from 'axios';
 import PokemonList from './components/PokemonList.component';
+import { getAllCollections } from './services/pokemon.service';
+import { Wallet } from 'ethers';
 
-interface DonneesAPI {
-  propriete1: string;
-  propriete2: number;
-}
+
 type Canceler = () => void
 const useAffect = (
   asyncEffect: () => Promise<Canceler | void>,
@@ -54,8 +53,8 @@ async function fetchPokemon() {
     }
   };
   try {
-    const response = await fetch('https://api.pokemontcg.io/v1/cards?limit=10');
-    const userData = await response.json();
+    //const response = await fetch('https://api.pokemontcg.io/v1/cards?limit=10');
+    //const userData = await response.json();
     return {};
   } catch (error) {
     console.error('Erreur lors de la récupération des données:', error);
@@ -64,28 +63,36 @@ async function fetchPokemon() {
 }
 
 export const App = () => {
-
   let [pokemonData, setPokemonData] = useState({});
-
+  
   useEffect(() => {
     fetchPokemon().then(data => setPokemonData(data));
-  })
+  }, [])
+  
+  const wallet = useWallet();
 
-
-  const wallet = useWallet()
-  if (wallet?.details.account != null) {
-    let acount = wallet?.details.account
-    console.log(wallet?.contract)
-    wallet?.contract.getMessage()
-    wallet?.contract.createCollection('col1')  ///fail 
-     //retrun adress collection only if super_admin col1= 0: "0xd8058efe0198ae9dD7D563e1b4938Dcbc86A1F81"
-     //and col2= "0x6D544390Eb535d61e196c87d6B9c80dCD8628Acd"
-    const value = wallet?.contract.allCollections() 
-    console.log(value)
-    const value2= wallet?.contract.allPokemonsOfCollection(0);  //retturn all adress(url) pokemon of one collection
-    console.log(value2)   // pokemon_url ="xy7-10"
-
+  const addOneCollection = (collection) => {
+   console.log("Ajout d'une collection " + collection.name);
+   if (wallet?.details.account != null) {
+        wallet?.contract.createCollection2(collection.name).then((data)=>{
+                console.log(data)
+                wallet?.contract.add_carte_to_collection(0, "carte1").then(console.log)
+              })
+            }
+        //console.log(wallet?.contract.owner_of_('xy7-10')) // retourne le resultat adresss(0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266)
   }
+
+  const addAllCollection = () => {    
+    getAllCollections().forEach(addOneCollection)
+  }
+
+  const AddCarteToUser= ()=>{
+    console.log("mint card")
+    wallet?.contract.mint_(wallet?.details.account, "carte1").then(()=> {
+      wallet?.contract.owner_of_("carte1").then(console.log)
+    })
+  }
+
 
 
   return (
@@ -93,6 +100,9 @@ export const App = () => {
       <h1>Welcome to Pokémon TCG</h1>
       <div>
         <PokemonList cartes={pokemonData?.cards} />
+        <button  type="button"  onClick={addAllCollection}>Create collection</button>
+        <button  type="button"  onClick={AddCarteToUser}>Mint card to user </button>
+
       </div>
     </div>
   )
