@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //pragma solidity >=0.5.0 <0.6.0;
 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import "./Collection.sol";
 import "./Ownable.sol";
