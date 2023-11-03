@@ -11,7 +11,6 @@ contract Collection {
   string public code;
   int public cardCount; //taile de la colection
   mapping(int => Pokemon) public pokemons;
-  
 
   constructor(string memory _name, int _cardCount, string memory _code) {
     name = _name;
@@ -19,8 +18,8 @@ contract Collection {
     code = _code;
   }
 
-  function addCard(string memory id) public {
-    Pokemon p = new Pokemon(id);
+  function addCard(string memory id, string memory pokemonImgUrl) public {
+    Pokemon p = new Pokemon(id, pokemonImgUrl);
     pokemons[cardCount++] = p;
   }
 
@@ -53,7 +52,7 @@ contract Collection {
   function allCardsUser(
     address owner
   ) public view virtual returns (string[] memory) {
-     uint256  numberCardsUser= balanceOf((owner));
+    uint256 numberCardsUser = balanceOf((owner));
     string[] memory allcards = new string[](numberCardsUser);
     uint256 index = 0;
     for (int i = 0; i < cardCount; i++) {
@@ -62,7 +61,7 @@ contract Collection {
         index++;
       }
     }
-   
+
     return allcards;
   }
 
@@ -106,7 +105,7 @@ contract Collection {
     return "";
   }
 
-  function getCard(int indice ) public returns( Pokemon){
-     return pokemons[indice];
+  function getCard(int indice) public returns (Pokemon) {
+    return pokemons[indice];
   }
 }

@@ -2,17 +2,20 @@ pragma solidity ^0.8.19;
 
 import "./Ownable.sol";
 
-
-contract Pokemon is Ownable{
+contract Pokemon is Ownable {
   string public id;
-  
-  constructor(string memory  _id){
+  string public imgUrl;
+
+  constructor(string memory _id, string memory _imgUrl) {
     id = _id;
+    imgUrl = _imgUrl;
   }
 
-  function getId() public view  returns (string memory){
+  function getId() public view returns (string memory) {
     return id;
-    //return "I am a pokemon";
   }
 
+  function getImgUrl() public view returns (string memory) {
+    return imgUrl;
+  }
 }
