@@ -10,6 +10,8 @@ import "./Struct.sol";
 
 contract Main is PokemonOwenership {
   address private admin;
+  mapping (int => Booster) boosters;
+  int boostersCount =0;
 
   constructor() {
     admin = msg.sender;
@@ -149,7 +151,10 @@ contract Main is PokemonOwenership {
     return pokemonsUser;
   }
 
+  /*function createBoosters() external {
+    boosters[boostersCount]= new Booster(c);
+     boostersCount++;
+  }*/
 
 
-  function createBooster(address[] memory cardIds) external {}
 }

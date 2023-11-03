@@ -15,6 +15,18 @@ const User = props => {
   return (
     <div>
       <h1>Welcome {name}</h1>
+      <button type="button" onClick={AddCarteToUser}>
+        Mint card to user{' '}
+      </button>
+      <button type="button" onClick={TransferCard}>
+        Transfer card{' '}
+      </button>
+      <button type="button" onClick={getAllCollections}>
+        collections{' '}
+      </button>
+      <button type="button" onClick={allCollectionCardCount}>
+        cardcount{' '}
+      </button>
       <h2>Your Pokemons</h2>
       <div>
         {userPokemons.map((pokemon, index) => (

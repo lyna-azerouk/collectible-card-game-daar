@@ -9,9 +9,7 @@ const PokemonDetails = props => {
   const { id } = useParams()
 
   useEffect(() => {
-    getPokemonById(id).then(data => {
-      setPokemonData(data)
-    })
+    //
   }, [])
 
   return (

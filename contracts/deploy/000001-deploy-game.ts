@@ -39,7 +39,7 @@ const deployer: DeployFunction = async hre => {
         main.addCardToCollection(position, pokemon.id, pokemon.imgUrl)
       }
     })
-  }, 2000);
+  }, 5000);
 
   /**
    * Mint card to user 
@@ -49,18 +49,12 @@ const deployer: DeployFunction = async hre => {
     // retrive the user address
     const userAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
           
-    // retrive all pokemons  
     let allPokemons : any[] = [];  
-    //console.log(collections)
-    //console.log(collections.length)
     for (let i = 0; i < collections.length; i++) {
       const pokemons = await main.allPokemonsFrom(i);
       //console.log(pokemons)
       allPokemons = allPokemons.concat(pokemons);
     }      
-                
-    //console.log(allPokemons);
-   
     if (allPokemons.length >= 1) {
         main.mint( userAddress , allPokemons[0]).then(()=>
         main.ownerOf( allPokemons[0]).then(console.log)
@@ -79,15 +73,13 @@ const deployer: DeployFunction = async hre => {
         })
       })
     }
-
     const displayPokemonsFromBlocchain = () : any =>{
           main.allPokemonsOfCollection(3).then((data :any )=>{
               console.log(data);
           });
     }
-    displayPokemonsFromBlocchain();
-    
-  }, 5000);               
+
+  }, 10000);               
 }
 
 const getCollectionFromApi = () => {

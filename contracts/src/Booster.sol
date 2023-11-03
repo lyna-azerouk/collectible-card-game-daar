@@ -14,10 +14,10 @@ contract Booster is Ownable {
   PokemonOwenership pokemonowner = new PokemonOwenership();
   Pokemon[] cardsBooster = new Pokemon[](_number_card);
 
-  constructor(Collection collection, bool _opened) {
+  constructor(Collection collection) {
     //setOwner(msg.sender);
     _collection = collection;
-    opened = _opened;
+    opened = false;
   }
 
   /**
@@ -34,9 +34,7 @@ contract Booster is Ownable {
   }
 
   function generateRandomCardId() public view returns (int) {
-    uint256 randomNumber = uint256(
-      keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))
-    ) % 101;
+    uint256 randomNumber = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)) ) % 101;
     return int(randomNumber);
   }
 

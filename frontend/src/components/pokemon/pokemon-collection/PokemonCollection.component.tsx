@@ -7,20 +7,13 @@ import {
 } from '@/services/api-service/pokemon.service'
 import { Link, useParams } from 'react-router-dom'
 import './PokemonCollectionPresenter.style.css'
+
 const PokemonCollection = props => {
   const name: string = props.data.name
   const size: number = props.data.size
+  const code: string = props.data.code
   const id: string = props.data.id
-  const [imgUrl, setImgUrl] = useState('')
-
-  useEffect(() => {
-    fetch('https://api.pokemontcg.io/v1/sets/' + props.data.id).then(
-      async response => {
-        const res = await response.json()
-        setImgUrl(res.set.logoUrl)
-      }
-    )
-  }, [])
+  const imgUrl: string = props.data.imgUrl
 
   return (
     <div className="pokemon-collection">
@@ -36,14 +29,32 @@ const PokemonCollectionsPresenter = props => {
   const [collectionsMetadata, setCollectionsMetadata] = useState([])
   const wallet = props.wallet
 
+  const formatCollection = (collection: any) => {
+    const id = collection[0]._isBigNumber
+      ? collection[0].toNumber()
+      : collection[0]
+    const name = collection[1]
+    const code = collection[2]
+    const imgUrl = collection[3]
+    const size = collection[4]._isBigNumber
+      ? collection[4].toNumber()
+      : collection[4]
+
+    return { id, name, code, imgUrl, size }
+  }
+
+  const addCollectionsMetadata = (collection: any) => {
+    setCollectionsMetadata(collectionsMetadata => [
+      ...collectionsMetadata,
+      collection,
+    ])
+  }
+
   useEffect(() => {
-    getAllCollectionsMetadata().then(allCollection => {
-      wallet?.contract?.allCollections().then(collectionIds => {
-        setCollectionsMetadata(
-          allCollection.filter(collection =>
-            collectionIds.includes(collection.id)
-          )
-        )
+    console.log('liste des collections')
+    wallet?.contract.allCollections().then((collections: any[]) => {
+      collections.forEach(collection => {
+        addCollectionsMetadata(formatCollection(collection))
       })
     })
   }, [])
@@ -64,46 +75,38 @@ const PokemonCollectionsPresenter = props => {
 
 const PokemonCollectionPresenter = props => {
   const [cards, setCards] = useState([])
-  const [simpleCards, setSimpleCards] = useState([]) //["id1", "id2", "id3
   const { id } = useParams()
   const wallet = props.wallet
+  console.log('id = ' + id)
 
-  const getCards = () => {
-    //  modofier la fonction allPokemonsOfCollection ==> change int with sting :)
-     wallet?.contract.allPokemonsOfCollection(3).then(data => {
-      setSimpleCards(data)
-      console.log(data)
-    })
+  const appendToCards = (data: any) => {
+    setCards(cards => [...cards, data])
   }
 
-  useEffect(   () => {
-    getCollectionById(id).then(data => {
-      setCards(data)
+  const formatPokemonData = (pokemonData: any) => {
+    const address: string = pokemonData[0]
+    const id: string = pokemonData[1]
+    const imgUrl: string = pokemonData[2]
+    return { address, id, imgUrl }
+  }
+
+  useEffect(() => {
+    wallet?.contract.allPokemonsOfCollection(id).then((pokemons: any) => {
+      pokemons.forEach((pokemon: any) =>
+        appendToCards(formatPokemonData(pokemon))
+      )
     })
-    getCards()
   }, [])
+
+  console.log('[from pokemon collection presenter]')
 
   console.log(cards)
 
-  /*return (
+  return (
     <div className="pokemon-collection-presenter">
       <PokemonList cards={cards} />
     </div>
-  )*/
-
-  return (
-    <div >
-      <h3>display simple cards</h3>
-      <div>
-        {simpleCards.map((pokemon, index) => (
-          <div key={index}>
-            <h3>Single pokemon</h3>
-            <p>{pokemon}</p>
-          </div>
-        ))}
-      </div>
-    </div>
   )
-}    
+}
 
 export { PokemonCollectionsPresenter, PokemonCollectionPresenter }
