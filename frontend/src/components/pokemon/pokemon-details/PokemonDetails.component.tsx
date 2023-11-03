@@ -13,41 +13,54 @@ const PokemonDetails = props => {
 
   return (
     <div>
-      <PokemonCardDetail data={pokemonData} currentUser={props.currentUser} />
+      <PokemonCardDetail
+        data={pokemonData}
+        currentUser={props.currentUser}
+        mintPokemon={props.mintPokemon}
+        buyPokemon={props.buyPokemon}
+        renouncePokemonOwnership={props.renouncePokemonOwnership}
+      />
     </div>
   )
 }
 
-const AddCarteToUser = () => {
-  wallet?.contract.mint(wallet?.details.account, pokemonData.address)
-}
-
 const PokemonCardDetail = (props: any) => {
   const pokemonData = props.data
-  console.log('[from pokemon details =]')
-  console.log(pokemonData)
+
+  const mintPokemon = () => {
+    props.mintPokemon(pokemonData.address)
+  }
+
+  const buyPokemon = () => {
+    props.buyPokemon()
+  }
+
+  const renouncePokemonOwnership = () => {
+    props.renouncePokemonOwnership()
+  }
 
   const getAppropriateButton = () => {
     const button1 = (
-      <button className="btn btn-primary" onClick={AddCarteToUser => {}}>
+      <button className="btn btn-primary" onClick={mintPokemon}>
         mint
       </button>
     )
 
     const button2 = (
-      <button className="btn btn-primary" onClick={() => {}}>
+      <button className="btn btn-primary" onClick={buyPokemon}>
         buy
       </button>
     )
 
     const button3 = (
-      <button className="btn btn-primary" onClick={() => {}}>
+      <button className="btn btn-primary" onClick={renouncePokemonOwnership}>
         renounce ownership
       </button>
     )
 
     const pokemonOwnerByCurrentUser = props.currentUser === pokemonData.owner
-    const pokemonIsFree = false
+    const pokemonIsFree =
+      pokemonData.owner === '0x0000000000000000000000000000000000000000'
 
     if (pokemonIsFree) {
       return button1

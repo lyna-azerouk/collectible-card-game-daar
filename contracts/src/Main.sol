@@ -136,23 +136,23 @@ contract Main is PokemonOwenership {
 
   function allCardsUser(
     address _owner
-  ) public view virtual returns (string[] memory) {
+  ) public view virtual returns (PokemonInfo[] memory) {
     uint256 cardCount = balanceOf(_owner);
-    string[] memory pokemonsUser = new string[]((cardCount));
-    string[] memory result;
+    PokemonInfo[] memory userPokemons = new PokemonInfo[]((cardCount));
+    Pokemon[] memory result;
     uint256 j = 0;
     for (int i = 0; i < collectionCount; i++) {
 
       Collection collection = pokemonCollections[i];
-      result = (collection.allCardsUser(_owner));
+      result = (collection.userCards(_owner));
       uint256 index = 0;
       while (index < result.length) {
-        pokemonsUser[j] = result[index];
+        userPokemons[j] = pokemonToPokemonInfo(result[index]);
         index++;
         j++;
       }
     }
-    return pokemonsUser;
+    return userPokemons;
   }
 
   /*function createBoosters() external {

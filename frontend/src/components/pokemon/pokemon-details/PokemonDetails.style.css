@@ -1,15 +1,15 @@
 .pokemon-card-details {
     display: flex;
-    justify-content: center;
-    margin: 5px;
-    padding: 5px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    text-align: center;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position : relative;
+    max-width: 1200px;
 }
 
 .pokemon-card-details-img {
+    width: 50%;
+
 }
 
 .pokemon-card-details-desc {
@@ -21,3 +21,53 @@
     height: 500px;
     margin: 10px;
 }
+
+
+.form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .form textarea {
+    height: 100px;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .form button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .form button:hover {
+    background-color: grey;
+  }
+  
+  .form button:active {
+    background-color: #0047b3;
+  }
+  
+  .f button {
+    background-color: black;
+    color: white;
+
+  }
+
+  .f button:hover {
+    background-color: grey;
+  }
+  
+  .f button:active {
+    background-color: #0047b3;
+  }
+
+  .f label {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  

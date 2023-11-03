@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 import "./Ownable.sol";
 import "./ERC721.sol";
 import "./Pokemon.sol";
+import "./Struct.sol";
 
 contract Collection {
   string public name;
@@ -78,15 +79,15 @@ contract Collection {
     }
   }
 
-  function allCardsUser(
+  function userCards(
     address owner
-  ) public view virtual returns (string[] memory) {
+  ) public view virtual returns (Pokemon[] memory) {
     uint256 numberCardsUser = balanceOf((owner));
-    string[] memory allcards = new string[](numberCardsUser);
+    Pokemon[] memory allcards = new Pokemon[](numberCardsUser);
     uint256 index = 0;
     for (int i = 0; i < cardCount; i++) {
       if (pokemons[i].owner() == owner) {
-        allcards[index] = (pokemons[i].getId());
+        allcards[index] =pokemons[i];
         index++;
       }
     }

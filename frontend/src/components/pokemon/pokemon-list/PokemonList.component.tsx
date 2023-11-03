@@ -19,9 +19,6 @@ const PokemonCard = (props: any) => {
 const PokemonList = props => {
   const listeDeCartes = props.cards ?? []
   const cartes = Object.values(listeDeCartes)
-  console.log('[from pokemon list =]')
-  console.log(props.cards)
-
   return (
     <div className="pokemon-list-container">
       <ul className="pokemon-list">

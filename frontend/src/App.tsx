@@ -6,13 +6,13 @@ import Home from './components/home/Home.component'
 import Layout from './pages/Layout'
 import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
-import { getAllPokemon } from './services/api-service/pokemon.service'
 import User from './components/user/User.component'
 import PokemonDetails from './components/pokemon/pokemon-details/PokemonDetails.component'
 import {
   PokemonCollectionPresenter,
   PokemonCollectionsPresenter,
 } from './components/pokemon/pokemon-collection/PokemonCollection.component'
+import { formatPokemonData } from './utile'
 
 // WALLET
 type Canceler = () => void
@@ -55,13 +55,38 @@ const useWallet = () => {
 
 export const App = () => {
   const [pokemonsData, setPokemonsData] = useState({})
-  const [name, setName] = useState('')
+  const [userPokemons, setUserPokemons] = useState([])
 
   const wallet = useWallet()
 
+  const mintPokemon = (pokemonAddress: string) => {
+    const userAddress: string = wallet?.details?.account || ''
+    if (userAddress === '') return
+    wallet?.contract.mint(userAddress, pokemonAddress)
+    retrieveUserPokemons()
+  }
+
+  const retrieveUserPokemons = () => {
+    const userAdress: string = wallet?.details?.account || ''
+    if (userAdress === '') return
+    wallet?.contract.allCardsUser(userAdress).then(pokemons => {
+      console.log('befire format')
+      console.log(pokemons)
+      setUserPokemons(pokemons.map(formatPokemonData))
+    })
+  }
+
+  const buyPokemon = () => {
+    console.log('buying pokemon from app')
+  }
+
+  const renouncePokemonOwnership = () => {
+    console.log('renouncing pokemon ownership from app')
+  }
+
   useEffect(() => {
-    setName('name')
-  }, [wallet])
+    retrieveUserPokemons()
+  }, [userPokemons.length])
 
   const addToPokemonsData = (pokemon: any) => {
     const currentPokemonsData = pokemonsData
@@ -78,7 +103,10 @@ export const App = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home wallet={wallet} />} />
-          <Route path="me" element={<User wallet={wallet} />} />
+          <Route
+            path="me"
+            element={<User wallet={wallet} myPokemons={userPokemons} />}
+          />
           <Route
             path="collections"
             element={<PokemonCollectionsPresenter wallet={wallet} />}
@@ -89,6 +117,9 @@ export const App = () => {
               <PokemonDetails
                 getPokemonInfoById={getPokemonInfoById}
                 currentUser={wallet?.details?.account}
+                mintPokemon={mintPokemon}
+                buyPokemon={buyPokemon}
+                renouncePokemonOwnership={renouncePokemonOwnership}
               />
             }
           />

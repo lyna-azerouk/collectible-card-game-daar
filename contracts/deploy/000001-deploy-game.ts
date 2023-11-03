@@ -54,12 +54,7 @@ const deployer: DeployFunction = async hre => {
       const pokemons = await main.allPokemonsFrom(i);
       //console.log(pokemons)
       allPokemons = allPokemons.concat(pokemons);
-    }      
-    if (allPokemons.length >= 1) {
-        main.mint( userAddress , allPokemons[0]).then(()=>
-        main.ownerOf( allPokemons[0]).then(console.log)
-      )
-    }  
+    }       
     const displayCollectionsFromBlocchain = () : any => {
       main.allCollections().then((response:any) => {
         console.log("Retrieving all collection from the blockchain");

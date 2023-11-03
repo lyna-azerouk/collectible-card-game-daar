@@ -7,6 +7,7 @@ import {
 } from '@/services/api-service/pokemon.service'
 import { Link, useParams } from 'react-router-dom'
 import './PokemonCollectionPresenter.style.css'
+import { formatCollection, formatPokemonData } from '@/utile'
 
 const PokemonCollection = props => {
   const name: string = props.data.name
@@ -29,20 +30,6 @@ const PokemonCollectionsPresenter = props => {
   const [collectionsMetadata, setCollectionsMetadata] = useState([])
   const wallet = props.wallet
 
-  const formatCollection = (collection: any) => {
-    const id = collection[0]._isBigNumber
-      ? collection[0].toNumber()
-      : collection[0]
-    const name = collection[1]
-    const code = collection[2]
-    const imgUrl = collection[3]
-    const size = collection[4]._isBigNumber
-      ? collection[4].toNumber()
-      : collection[4]
-
-    return { id, name, code, imgUrl, size }
-  }
-
   const addCollectionsMetadata = (collection: any) => {
     setCollectionsMetadata(collectionsMetadata => [
       ...collectionsMetadata,
@@ -51,7 +38,6 @@ const PokemonCollectionsPresenter = props => {
   }
 
   useEffect(() => {
-    console.log('liste des collections')
     wallet?.contract.allCollections().then((collections: any[]) => {
       collections.forEach(collection => {
         addCollectionsMetadata(formatCollection(collection))
@@ -77,18 +63,9 @@ const PokemonCollectionPresenter = props => {
   const [cards, setCards] = useState([])
   const { id } = useParams()
   const wallet = props.wallet
-  console.log('id = ' + id)
 
   const appendToCards = (data: any) => {
     setCards(cards => [...cards, data])
-  }
-
-  const formatPokemonData = (pokemonData: any) => {
-    const address: string = pokemonData[0]
-    const id: string = pokemonData[1]
-    const imgUrl: string = pokemonData[2]
-    const owner: string = pokemonData[3]
-    return { address, id, imgUrl, owner }
   }
 
   useEffect(() => {
@@ -99,10 +76,6 @@ const PokemonCollectionPresenter = props => {
       })
     })
   }, [])
-
-  console.log('[from pokemon collection presenter]')
-
-  console.log(cards)
 
   return (
     <div className="pokemon-collection-presenter">
