@@ -1,7 +1,5 @@
-import { getPokemonById } from '@/services/api-service/pokemon.service'
 import React, { useEffect, useId, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { PokemonCard } from '../pokemon-list/PokemonList.component'
 import './PokemonDetails.style.css'
 
 const PokemonDetails = props => {
@@ -9,7 +7,8 @@ const PokemonDetails = props => {
   const { id } = useParams()
 
   useEffect(() => {
-    //
+    const pokemonInfo = props.getPokemonInfoById(id)
+    setPokemonData(pokemonInfo)
   }, [])
 
   return (
@@ -20,20 +19,20 @@ const PokemonDetails = props => {
 }
 
 const PokemonCardDetail = (props: any) => {
+  const pokemonData = props.data
+  console.log('[from pokemon details =]')
+  console.log(pokemonData)
+
   return (
     <div className="pokemon-card-details">
       <img
-        src={props.data.imageUrl}
+        src={props.data.imgUrl}
         alt={props.data.name}
         className="pokemon-card-details-img"
       />
-      <div className="pokemon-card-details-desc">Description</div>
+      <div className="pokemon-card-details-desc">{pokemonData.imgUrl}</div>
     </div>
   )
 }
-
-const customeStyle = {}
-
-const imageStyle = {}
 
 export default PokemonDetails

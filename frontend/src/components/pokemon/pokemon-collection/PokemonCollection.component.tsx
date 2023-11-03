@@ -87,14 +87,16 @@ const PokemonCollectionPresenter = props => {
     const address: string = pokemonData[0]
     const id: string = pokemonData[1]
     const imgUrl: string = pokemonData[2]
-    return { address, id, imgUrl }
+    const owner: string = pokemonData[3]
+    return { address, id, imgUrl, owner }
   }
 
   useEffect(() => {
     wallet?.contract.allPokemonsOfCollection(id).then((pokemons: any) => {
-      pokemons.forEach((pokemon: any) =>
+      pokemons.forEach((pokemon: any) => {
         appendToCards(formatPokemonData(pokemon))
-      )
+        props.savePokemonData(formatPokemonData(pokemon))
+      })
     })
   }, [])
 

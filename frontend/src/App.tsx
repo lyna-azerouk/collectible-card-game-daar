@@ -54,19 +54,24 @@ const useWallet = () => {
 // END WALLET
 
 export const App = () => {
-  const [pokemonData, setPokemonData] = useState({})
+  const [pokemonsData, setPokemonsData] = useState({})
   const [name, setName] = useState('')
 
   const wallet = useWallet()
 
   useEffect(() => {
-    getAllPokemon().then(data => {
-      if (data !== pokemonData) {
-        setPokemonData(data)
-      }
-    })
     setName('name')
   }, [wallet])
+
+  const addToPokemonsData = (pokemon: any) => {
+    const currentPokemonsData = pokemonsData
+    currentPokemonsData[pokemon.id] = pokemon
+    setPokemonsData(currentPokemonsData)
+  }
+
+  const getPokemonInfoById = (id: string) => {
+    return pokemonsData[id]
+  }
 
   return (
     <BrowserRouter>
@@ -78,10 +83,18 @@ export const App = () => {
             path="collections"
             element={<PokemonCollectionsPresenter wallet={wallet} />}
           />
-          <Route path="/pokemon/:id" element={<PokemonDetails />} />
+          <Route
+            path="/pokemon/:id"
+            element={<PokemonDetails getPokemonInfoById={getPokemonInfoById} />}
+          />
           <Route
             path="/collection/:id"
-            element={<PokemonCollectionPresenter wallet={wallet} />}
+            element={
+              <PokemonCollectionPresenter
+                wallet={wallet}
+                savePokemonData={addToPokemonsData}
+              />
+            }
           />
         </Route>
       </Routes>

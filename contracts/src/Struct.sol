@@ -8,6 +8,7 @@ struct PokemonInfo {
     address pokemonAddress;
     string id;
     string imgUrl;
+    address owner;
 }
 
 struct CollectionInfo {

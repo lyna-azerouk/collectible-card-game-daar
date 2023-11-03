@@ -111,7 +111,11 @@ contract Main is PokemonOwenership {
   function pokemonToPokemonInfo(
     Pokemon pokemon
   ) public view returns (PokemonInfo memory) {
-    return PokemonInfo(address(pokemon), pokemon.getId(), pokemon.getImgUrl());
+    return PokemonInfo(
+      address(pokemon), 
+      pokemon.getId(), 
+      pokemon.getImgUrl(), 
+      pokemon.owner());
   }
 
   function allPokemonsOfCollection(
