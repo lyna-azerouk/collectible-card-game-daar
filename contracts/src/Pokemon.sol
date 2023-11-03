@@ -5,7 +5,7 @@ import "./Ownable.sol";
 contract Pokemon is Ownable {
   string public id;
   string public imgUrl;
-
+  
   constructor(string memory _id, string memory _imgUrl) {
     id = _id;
     imgUrl = _imgUrl;
