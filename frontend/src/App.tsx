@@ -85,7 +85,12 @@ export const App = () => {
           />
           <Route
             path="/pokemon/:id"
-            element={<PokemonDetails getPokemonInfoById={getPokemonInfoById} />}
+            element={
+              <PokemonDetails
+                getPokemonInfoById={getPokemonInfoById}
+                currentUser={wallet?.details?.account}
+              />
+            }
           />
           <Route
             path="/collection/:id"

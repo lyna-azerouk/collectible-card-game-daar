@@ -57,7 +57,7 @@ const PokemonCollectionsPresenter = props => {
         addCollectionsMetadata(formatCollection(collection))
       })
     })
-  }, [wallet])
+  }, [])
 
   return (
     <div>
