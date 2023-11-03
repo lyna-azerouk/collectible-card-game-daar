@@ -3,7 +3,7 @@ import pokemonData from "./cards.data.json"
 
 const getAllCollectionsFromPokemonApi = () => {
     return collectionData.sets.map(set => (
-        {name: set.name, size: set.totalCards, code: set.code})
+        {name: set.name, size: set.totalCards, code: set.code, img: set.logoUrl})
     );
 }
 
@@ -18,7 +18,7 @@ const getAllCollections = () => {
 
 const getAllCards = () => {
     return  pokemonData.data.map(data => (
-        {id: data.id, set:data.set.id})
+        {id: data.id, set:data.set.id, imgUrl: data.images.large})
     );
 }
 

@@ -9,18 +9,47 @@ import "./Pokemon.sol";
 contract Collection {
   string public name;
   string public code;
+  string public imgUrl;
   int public cardCount; //taile de la colection
   mapping(int => Pokemon) public pokemons;
 
-  constructor(string memory _name, int _cardCount, string memory _code) {
+  constructor(
+    string memory _name, 
+    int _cardCount, 
+    string memory _code, 
+    string memory _imgUrl) {
+
     name = _name;
     cardCount = _cardCount;
     code = _code;
+    imgUrl = _imgUrl;
   }
 
   function addCard(string memory id, string memory pokemonImgUrl) public {
     Pokemon p = new Pokemon(id, pokemonImgUrl);
     pokemons[cardCount++] = p;
+  }
+
+  function pokemonsData() public view returns (Pokemon[] memory) {
+    Pokemon[] memory pokemonsResult = new Pokemon[](uint256(cardCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < cardCount; i++) {
+      pokemonsResult[iUint] = pokemons[i];
+      iUint++;
+    }
+    return pokemonsResult;
+  }
+
+  function getName() public view returns (string memory) {
+    return name;
+  }
+
+  function getCode() public view returns (string memory) {
+    return code;
+  }
+
+  function getImgUrl() public view returns (string memory) {
+    return imgUrl;
   }
 
   function getPokemons() public view returns (address[] memory) {

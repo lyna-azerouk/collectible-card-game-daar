@@ -6,6 +6,7 @@ pragma solidity ^0.8.19;
 import "./Collection.sol";
 import "./PokemonOwenrship.sol";
 import "./Booster.sol";
+import "./Struct.sol";
 
 contract Main is PokemonOwenership {
   address private admin;
@@ -14,13 +15,16 @@ contract Main is PokemonOwenership {
     admin = msg.sender;
   }
 
-  function createCollection2(
+  function createCollection(
     string memory name,
-    string memory code
+    string memory code,
+    string memory imgUrl
   ) external returns (Collection) {
-    Collection collection = new Collection(name, 0, code);
+    Collection collection = new Collection(name, 0, code, imgUrl);
     pokemonCollections[collectionCount] = collection;
+
     collectionCount++;
+
     return collection;
   }
 
@@ -28,14 +32,6 @@ contract Main is PokemonOwenership {
     int collectionId
   ) public view returns (address[] memory) {
     return pokemonCollections[collectionId].getPokemons();
-  }
-
-  function createPokemon2(
-    string memory id,
-    string memory imgUrl
-  ) public returns (Pokemon) {
-    Pokemon p = new Pokemon(id, imgUrl);
-    return p;
   }
 
   function addCardToCollection(
@@ -47,25 +43,89 @@ contract Main is PokemonOwenership {
     return true; // s'assurer que la carte a bien été inseree
   }
 
-  function allCollections() public view returns (string[] memory) {
-    Collection[] memory collections = new Collection[](
-      uint256(collectionCount)
-    );
+  function collectionsCodes() public view returns (string[] memory) {
     string[] memory codes = new string[](uint256(collectionCount));
-    uint256 counter = 0;
+
+    uint256 iUint = 0;
     for (int i = 0; i < collectionCount; i++) {
-      collections[counter] = pokemonCollections[i];
-      codes[counter] = pokemonCollections[i].code();
-      counter++;
+
+      codes[iUint] = pokemonCollections[i].getCode();
+      iUint++;
     }
     return codes;
   }
 
+  /** Convert Pokemon object to PokemonInfo object
+   * Extract info from Pokemon object.
+   * @param collectionId id de la collection
+   * @param collection collection
+   */
+  function collectionToCollectionInfo(
+    int collectionId,
+    Collection collection
+  ) public view returns (CollectionInfo memory) {
+    return
+      CollectionInfo(
+        collectionId,
+        collection.getName(),
+        collection.getCode(),
+        collection.getImgUrl(),
+        collection.cardCount()
+      );
+  }
+
+  function allCollections() public view returns (CollectionInfo[] memory) {
+    CollectionInfo[] memory collectionsResult = new CollectionInfo[](
+      uint256(collectionCount)
+
+    );
+    uint256 iUint = 0;
+    for (int i = 0; i < collectionCount; i++) {
+
+      collectionsResult[iUint] = collectionToCollectionInfo(
+        i,
+        pokemonCollections[i]
+      );
+      iUint++;
+    }
+    return collectionsResult;
+  }
+
+  function getAllPokemons() public view returns (PokemonInfo[] memory) {
+    // retrive just pokemon of collection 0
+    Collection collection = pokemonCollections[0];
+    Pokemon[] memory pokemons = collection.pokemonsData();
+    PokemonInfo[] memory pokemonsResult = new PokemonInfo[](
+      uint256(collection.cardCount())
+    );
+    uint256 iUint = 0;
+    for (int i = 0; i < collection.cardCount(); i++) {
+      pokemonsResult[iUint]= pokemonToPokemonInfo(pokemons[iUint]);
+      iUint++;
+    }
+    return pokemonsResult;
+  }
+
+  function pokemonToPokemonInfo(
+    Pokemon pokemon
+  ) public view returns (PokemonInfo memory) {
+    return PokemonInfo(address(pokemon), pokemon.getId(), pokemon.getImgUrl());
+  }
+
   function allPokemonsOfCollection(
     int collectionId
-  ) public view returns (string[] memory) {
+  ) public view returns (PokemonInfo[] memory) {
     Collection collection = pokemonCollections[collectionId];
-    return collection.allPoekmons();
+    Pokemon[] memory pokemons = collection.pokemonsData();
+    PokemonInfo[] memory pokemonsResult = new PokemonInfo[](
+      uint256(collection.cardCount())
+    );
+    uint256 iUint = 0;
+    for (int i = 0; i < collection.cardCount(); i++) {
+      pokemonsResult[iUint]= pokemonToPokemonInfo(pokemons[iUint]);
+      iUint++;
+    }
+    return pokemonsResult;
   }
 
   function allCardsUser(
@@ -76,6 +136,7 @@ contract Main is PokemonOwenership {
     string[] memory result;
     uint256 j = 0;
     for (int i = 0; i < collectionCount; i++) {
+
       Collection collection = pokemonCollections[i];
       result = (collection.allCardsUser(_owner));
       uint256 index = 0;
@@ -87,6 +148,8 @@ contract Main is PokemonOwenership {
     }
     return pokemonsUser;
   }
+
+
 
   function createBooster(address[] memory cardIds) external {}
 }

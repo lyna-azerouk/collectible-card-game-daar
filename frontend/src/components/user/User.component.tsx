@@ -7,9 +7,8 @@ const User = props => {
   useEffect(() => {
     const user_adress = props.wallet?.details?.account
     setName(user_adress)
-    props.wallet?.contract.allCardsUser(user_adress).then(data => {
-      console.log(data)
-      setUserPokemons(data)
+    props.wallet?.contract.getAllPokemons().then(res => {
+      console.log(res)
     })
   }, [])
 
