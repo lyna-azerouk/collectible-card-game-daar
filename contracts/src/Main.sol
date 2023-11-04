@@ -5,7 +5,6 @@ pragma solidity ^0.8.19;
 
 import "./Collection.sol";
 import "./PokemonOwenrship.sol";
-import "./Booster.sol";
 import "./Struct.sol";
 
 contract Main is PokemonOwenership {
@@ -78,9 +77,7 @@ contract Main is PokemonOwenership {
 
   function allCollections() public view returns (CollectionInfo[] memory) {
     CollectionInfo[] memory collectionsResult = new CollectionInfo[](
-      uint256(collectionCount)
-
-    );
+      uint256(collectionCount));
     uint256 iUint = 0;
     for (int i = 0; i < collectionCount; i++) {
 
@@ -155,10 +152,28 @@ contract Main is PokemonOwenership {
     return userPokemons;
   }
 
-  /*function createBoosters() external {
-    boosters[boostersCount]= new Booster(c);
-     boostersCount++;
-  }*/
+  function createBooster(
+    int collectionId,
+    address[] memory cardsIds
+  ) external returns (Booster memory) {
+    Booster memory booster = Booster(collectionId, cardsIds);
+    boosters[boostersCount] = booster;
+    boostersCount++;
+    return booster;
+  }
+
+
+  function getBoosters() public view returns (Booster[] memory)
+  {
+    Booster[] memory boostersResult = new Booster[](
+      uint256(boostersCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < boostersCount; i++) {
+      boostersResult[iUint] = boosters[i];
+      iUint++;
+    }
+    return boostersResult;
+  } 
 
 
 }

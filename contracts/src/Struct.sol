@@ -18,3 +18,8 @@ struct CollectionInfo {
   string imgUrl;
   int cardCount;
 }
+
+struct Booster {
+  int collectionId;
+  address[] cardsIds;
+}
