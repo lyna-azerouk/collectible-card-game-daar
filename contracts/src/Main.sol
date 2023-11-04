@@ -9,8 +9,9 @@ import "./Struct.sol";
 
 contract Main is PokemonOwenership {
   address private admin;
-  mapping (int => Booster) boosters;
-  int boostersCount =0;
+  mapping (int => Booster) private boosters;
+  int private boostersCount = 0;
+  uint256 private _pokemonCount = 0;
 
   constructor() {
     admin = msg.sender;
@@ -41,6 +42,7 @@ contract Main is PokemonOwenership {
     string memory imgUrl
   ) external returns (bool) {
     pokemonCollections[collectionId].addCard(pokemonId, imgUrl);
+    _pokemonCount++;
     return true; // s'assurer que la carte a bien été inseree
   }
 
@@ -91,19 +93,30 @@ contract Main is PokemonOwenership {
   }
 
   function getAllPokemons() public view returns (PokemonInfo[] memory) {
-    // retrive just pokemon of collection 0
-    Collection collection = pokemonCollections[0];
-    Pokemon[] memory pokemons = collection.pokemonsData();
+    return allPokemons();
+  }
+
+  function allPokemons() private view returns (PokemonInfo[] memory) {
     PokemonInfo[] memory pokemonsResult = new PokemonInfo[](
-      uint256(collection.cardCount())
-    );
+      uint256(pokemonCount()));
     uint256 iUint = 0;
-    for (int i = 0; i < collection.cardCount(); i++) {
-      pokemonsResult[iUint]= pokemonToPokemonInfo(pokemons[iUint]);
-      iUint++;
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        pokemonsResult[iUint] = pokemonToPokemonInfo(pokemons[j_uint]);
+        iUint++;
+        j_uint++;
+      }
     }
     return pokemonsResult;
   }
+
+  function pokemonCount() private view returns (uint256) {
+    return _pokemonCount;
+  }
+  
 
   function pokemonToPokemonInfo(
     Pokemon pokemon
@@ -173,7 +186,23 @@ contract Main is PokemonOwenership {
       iUint++;
     }
     return boostersResult;
-  } 
+  }
+
+  function getPokemonInfo(address pokemonAddress) public view returns (PokemonInfo memory) {
+    // find pokemon in all collections
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        if (address(pokemons[j_uint]) == pokemonAddress) {
+          return pokemonToPokemonInfo(pokemons[j_uint]);
+        }
+        j_uint++;
+      }
+    }
+    
+  }
 
 
 }

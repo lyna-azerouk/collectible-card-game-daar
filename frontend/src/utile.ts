@@ -19,3 +19,9 @@ export const formatPokemonData = (pokemonData: any) => {
     const owner: string = pokemonData[3]
     return { address, id, imgUrl, owner }
   }
+
+export const formatBoosterData = (boosterData: any) => {
+  const collectionId = boosterData[0]._isBigNumber ? boosterData[0].toNumber() : boosterData[0];
+  const cardsIds = boosterData[1];
+  return {collectionId, cardsIds}
+}

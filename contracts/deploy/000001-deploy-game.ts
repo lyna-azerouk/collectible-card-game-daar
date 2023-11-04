@@ -8,20 +8,17 @@ import { getAllCards, getAllCollections } from '../services/pokemon.service'
 const deployer: DeployFunction = async hre => {
   if (hre.network.config.chainId !== 31337) return
   const { deployer } = await hre.getNamedAccounts()
-  await hre.deployments.deploy('Main', { from: deployer, log: true })
+  await hre.deployments.deploy('Main', { from: deployer, log: false })
   const main = await hre.ethers.getContract("Main",deployer)
   const collections0 = getCollectionFromApi();
   collections0.slice(0, 5).forEach(async collection => {
       await main.createCollection(collection.name, collection.code, collection.img);
   })    
 
-/**      
- * aFIICHAGE DES COLLECTIONS
- */
   let collectionsCode : any[] = await main.collectionsCodes();
   /**   
    * Rajout des pokemons from api to collections
-   */
+   */ 
 
   setTimeout(async () => {
     //ajout des pokemons dans la blockchain

@@ -12,7 +12,8 @@ import {
   PokemonCollectionPresenter,
   PokemonCollectionsPresenter,
 } from './components/pokemon/pokemon-collection/PokemonCollection.component'
-import { formatPokemonData } from './utile'
+import { formatBoosterData, formatPokemonData } from './utile'
+import { BoostersList } from './components/pokemon/booster/Booster.component'
 
 // WALLET
 type Canceler = () => void
@@ -37,6 +38,7 @@ const useAffect = (
 const useWallet = () => {
   const [details, setDetails] = useState<ethereum.Details>()
   const [contract, setContract] = useState<main.Main>()
+
   useAffect(async () => {
     const details_ = await ethereum.connect('metamask')
     if (!details_) return
@@ -56,6 +58,8 @@ const useWallet = () => {
 export const App = () => {
   const [pokemonsData, setPokemonsData] = useState({})
   const [userPokemons, setUserPokemons] = useState([])
+  const [allPokemons, setAllPokemons] = useState({})
+  const [boosters, setBoosters] = useState([])
 
   const wallet = useWallet()
 
@@ -63,17 +67,53 @@ export const App = () => {
     const userAddress: string = wallet?.details?.account || ''
     if (userAddress === '') return
     wallet?.contract.mint(userAddress, pokemonAddress)
+    refreshApp()
+  }
+
+  const retrieveAllPokemons = () => {
+    wallet?.contract.getAllPokemons().then(pokemons => {
+      const formatedPokemons = pokemons.map(formatPokemonData)
+      const result = allPokemons
+      formatedPokemons.forEach(pokemon => {
+        result[pokemon.address] = pokemon
+      })
+      console.log(result)
+      setAllPokemons(result)
+    })
+  }
+
+  const refreshApp = () => {
     retrieveUserPokemons()
+    retrieveBoosters()
+    retrieveAllPokemons()
   }
 
   const retrieveUserPokemons = () => {
     const userAdress: string = wallet?.details?.account || ''
     if (userAdress === '') return
     wallet?.contract.allCardsUser(userAdress).then(pokemons => {
-      console.log('befire format')
-      console.log(pokemons)
       setUserPokemons(pokemons.map(formatPokemonData))
     })
+  }
+
+  const retrieveBoosters = () => {
+    wallet?.contract.getBoosters().then(boostersData => {
+      if (!boostersData) return
+      const formatedBoosters = boostersData.map(formatBoosterData)
+      const formatedCardsInBoosters = formatedBoosters.map(booster => {
+        const cards: any[] = booster.cardsIds.map(
+          (cardId: string) => allPokemons[cardId]
+        )
+        return { id: booster.collectionId, pokemons: cards }
+      })
+      setBoosters(formatedCardsInBoosters)
+    })
+    console.log(boosters)
+  }
+
+  const displayPokemon = () => {
+    console.log('displaying pokemon from app')
+    console.log(pokemonsData)
   }
 
   const buyPokemon = () => {
@@ -85,8 +125,8 @@ export const App = () => {
   }
 
   useEffect(() => {
-    retrieveUserPokemons()
-  }, [userPokemons.length])
+    refreshApp()
+  }, [wallet])
 
   const addToPokemonsData = (pokemon: any) => {
     const currentPokemonsData = pokemonsData
@@ -94,9 +134,10 @@ export const App = () => {
     setPokemonsData(currentPokemonsData)
   }
 
-  const getPokemonInfoById = (id: string) => {
-    return pokemonsData[id]
-  }
+  const getPokemonInfoById = (id: string) => pokemonsData[id]
+
+  const getPokemonInfoByaddress = (address: string) =>
+    allPokemons['0x8Ff3801288a85ea261E4277d44E1131Ea736F77B']
 
   return (
     <BrowserRouter>
@@ -106,6 +147,10 @@ export const App = () => {
           <Route
             path="me"
             element={<User wallet={wallet} myPokemons={userPokemons} />}
+          />
+          <Route
+            path="boosters"
+            element={<BoostersList boosters={boosters} />}
           />
           <Route
             path="collections"
