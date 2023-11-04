@@ -39,8 +39,6 @@ const deployer: DeployFunction = async hre => {
       main.allPokemonsOfCollection(collectionId).then((pokemons: any[]) => {
         const pokemonsAddress:string[] = pokemons.map(pokemon => pokemon[0]);
         main.createBooster(collectionId, pokemonsAddress);
-      }).then(() => {
-        main.getBoosters().then(console.log);       
       })
     })
   
