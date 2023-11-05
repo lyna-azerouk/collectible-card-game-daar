@@ -5,9 +5,19 @@ import { BOOSTER_IMG } from '@/const';
 import './booster.styles.css';
 
 export const Booster = (props) => {
+    const setAnnounce = props.setAnnounce;
 
     const openBooster = () => {
-        props.openBoosterById(props.data.id);
+        const res = props.openBoosterById(props.data.id);
+        setAnnounce("res: " + res);
+        announceOpenedBooster();
+
+    }
+
+    const announceOpenedBooster = () => {
+        const msg = new SpeechSynthesisUtterance();
+        msg.text = 'Your are oppening a pokemon booster';
+        window.speechSynthesis.speak(msg);
     }
 
     return (
@@ -24,18 +34,26 @@ export const Booster = (props) => {
 
 
 export const BoostersList = (props) => {
+    const [announce, setAnnounce] = useState('');
     const boosters = props.boosters;
-    
+
     return (
-        <div className='booster-list'>
-            {
-                boosters.map((booster) => (
-                    <Booster 
-                        data={booster} 
-                        openBoosterById={props.openBoosterById}
-                    />
-                ))
-            }
+        <div className='booster-presenter'>
+            <div className='announce'>
+                <h3>Announce</h3>
+                <p>{announce}</p>
+            </div>
+            <div className='booster-list'>
+                {
+                    boosters.map((booster) => (
+                        <Booster
+                            data={booster}
+                            openBoosterById={props.openBoosterById}
+                            setAnnounce={setAnnounce}
+                        />
+                    ))
+                }
+            </div>
         </div>
     )
 }
