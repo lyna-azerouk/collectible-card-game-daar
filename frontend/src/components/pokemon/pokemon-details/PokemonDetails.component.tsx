@@ -43,13 +43,13 @@ const PokemonCardDetail = (props: any) => {
   const getAppropriateButton = () => {
     const button1 = (
       <button className="btn btn-primary" onClick={mintPokemon}>
-        mint
+        Mint Pokemon
       </button>
     )
 
     const button2 = (
       <button className="btn btn-primary" onClick={buyPokemon}>
-        buy
+        Buy Pokemon
       </button>
     )
 
@@ -79,10 +79,8 @@ const PokemonCardDetail = (props: any) => {
         alt={props.data.name}
         className="pokemon-card-details-img"
       />
-      <div className="pokemon-card-details-desc">
-        <h4>Description</h4>
-        <div>details</div>
-        <div>{getAppropriateButton()}</div>
+      <div className="pokemon-card-details-button">
+        {getAppropriateButton()}
       </div>
     </div>
   )
