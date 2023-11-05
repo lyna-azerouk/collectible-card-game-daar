@@ -71,7 +71,14 @@ export const App = () => {
   }
 
   const openBoosterById = (boosterId: number) => {
-    console.log('opening booster from app ' + boosterId)
+    const userAddress = wallet?.details?.account || ''
+    if (userAddress === '') return
+    wallet?.contract.openBoosterFor(boosterId, userAddress).then(() => {
+      console.log('you owned the following cards:')
+      console.log(boosters[boosterId].pokemons)
+
+      refreshApp()
+    })
   }
 
   const retrieveAllPokemons = () => {

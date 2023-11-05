@@ -188,6 +188,17 @@ contract Main is PokemonOwenership {
     return boostersResult;
   }
 
+  function openBoosterFor(int boosterId, address usrAddress) external returns (bool) {
+    // user which open the booster become the owner of the cards
+    Booster memory booster = boosters[boosterId];
+    for (uint256 i = 0; i < booster.cardsIds.length; i++) {
+      address cardId = booster.cardsIds[i];
+      Pokemon pokemon = Pokemon(cardId);
+      mint(usrAddress, address(pokemon));
+    }
+    return true;
+  }
+
   function getPokemonInfo(address pokemonAddress) public view returns (PokemonInfo memory) {
     // find pokemon in all collections
     for (int i = 0; i < collectionCount; i++) {
