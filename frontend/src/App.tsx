@@ -70,6 +70,10 @@ export const App = () => {
     refreshApp()
   }
 
+  const openBoosterById = (boosterId: number) => {
+    console.log('opening booster from app ' + boosterId)
+  }
+
   const retrieveAllPokemons = () => {
     wallet?.contract.getAllPokemons().then(pokemons => {
       const formatedPokemons = pokemons.map(formatPokemonData)
@@ -111,11 +115,6 @@ export const App = () => {
     console.log(boosters)
   }
 
-  const displayPokemon = () => {
-    console.log('displaying pokemon from app')
-    console.log(pokemonsData)
-  }
-
   const buyPokemon = () => {
     console.log('buying pokemon from app')
   }
@@ -150,7 +149,12 @@ export const App = () => {
           />
           <Route
             path="boosters"
-            element={<BoostersList boosters={boosters} />}
+            element={
+              <BoostersList
+                boosters={boosters}
+                openBoosterById={openBoosterById}
+              />
+            }
           />
           <Route
             path="collections"

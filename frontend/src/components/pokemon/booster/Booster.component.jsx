@@ -7,7 +7,7 @@ import './booster.styles.css';
 export const Booster = (props) => {
 
     const openBooster = () => {
-        console.log('open booster');
+        props.openBoosterById(props.data.id);
     }
 
     return (
@@ -30,7 +30,10 @@ export const BoostersList = (props) => {
         <div className='booster-list'>
             {
                 boosters.map((booster) => (
-                    <Booster data={booster} />
+                    <Booster 
+                        data={booster} 
+                        openBoosterById={props.openBoosterById}
+                    />
                 ))
             }
         </div>
