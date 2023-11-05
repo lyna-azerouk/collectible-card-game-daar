@@ -6,9 +6,18 @@ import './booster.styles.css';
 
 export const Booster = (props) => {
 
+    const openBooster = () => {
+        console.log('open booster');
+    }
+
     return (
         <div className='booster'>
             <img src={BOOSTER_IMG} />
+            <div>
+                <button onClick={openBooster}>
+                    Open
+                </button>
+            </div>
         </div>
     )
 }
