@@ -1,34 +1,21 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "./erc721.sol";
+import "./Ownable.sol";
 
-/////////
-abstract contract Pokemon  is ERC721{
-  int public id;
-  string  public img_url;
-    
-  constructor(int  _id) {
+contract Pokemon is Ownable {
+  string public id;
+  string public imgUrl;
+  
+  constructor(string memory _id, string memory _imgUrl) {
     id = _id;
-    img_url = "";
+    imgUrl = _imgUrl;
   }
 
-   function balanceOf(address _owner)  public virtual override   returns (uint256) {
-        
-  }
-  
-  function ownerOf(uint256 _tokenId) public virtual  override returns (address) {
-
+  function getId() public view returns (string memory) {
+    return id;
   }
 
-  
-  function transferFrom(address _from, address _to, uint256 _tokenId) public virtual override payable {
-
+  function getImgUrl() public view returns (string memory) {
+    return imgUrl;
   }
-
-  
-  function approve(address _approved, uint256 _tokenId) public virtual  override payable {
-    
-  }
-  
 }

@@ -1,14 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import styles from './styles.module.css'
+import React from 'react'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import { Route, BrowserRouter, Routes } from 'react-router-dom'
+import Home from './components/home/Home.component'
+import Layout from './pages/Layout'
 import * as ethereum from '@/lib/ethereum'
 import * as main from '@/lib/main'
-import axios from 'axios';
-import PokemonList from './components/PokemonList.component';
+import User from './components/user/User.component'
+import PokemonDetails from './components/pokemon/pokemon-details/PokemonDetails.component'
+import {
+  PokemonCollectionPresenter,
+  PokemonCollectionsPresenter,
+} from './components/pokemon/pokemon-collection/PokemonCollection.component'
+import { formatBoosterData, formatPokemonData } from './utile'
+import { BoostersList } from './components/pokemon/booster/Booster.component'
 
-interface DonneesAPI {
-  propriete1: string;
-  propriete2: number;
-}
+// WALLET
 type Canceler = () => void
 const useAffect = (
   asyncEffect: () => Promise<Canceler | void>,
@@ -30,7 +37,7 @@ const useAffect = (
 
 const useWallet = () => {
   const [details, setDetails] = useState<ethereum.Details>()
-  const [main_contract, setMainContract] = useState<main.Main>()
+  const [contract, setContract] = useState<main.Main>()
 
   useAffect(async () => {
     const details_ = await ethereum.connect('metamask')
@@ -38,64 +45,152 @@ const useWallet = () => {
     setDetails(details_)
     const contract_ = await main.init(details_)
     if (!contract_) return
-    setMainContract(contract_)
+    setContract(contract_)
   }, [])
   return useMemo(() => {
-    if (!details || !main_contract) return
-    return { details, contract: main_contract }
-  }, [details, main_contract])
+    if (!details || !contract) return
+    return { details, contract }
+  }, [details, contract])
 }
 
-async function fetchPokemon() {
-  const options = {
-    method: 'GET',
-    headers: {
-      'X-RapidAPI-Key': 'e78be1ff-226e-43e7-98c5-5b57ce01ece7',
-    }
-  };
-  try {
-    const response = await fetch('https://api.pokemontcg.io/v1/cards?limit=10');
-    const userData = await response.json();
-    return {};
-  } catch (error) {
-    console.error('Erreur lors de la récupération des données:', error);
-    throw error;
-  }
-}
+// END WALLET
 
 export const App = () => {
-
-  let [pokemonData, setPokemonData] = useState({});
-
-  useEffect(() => {
-    fetchPokemon().then(data => setPokemonData(data));
-  })
-
+  const [pokemonsData, setPokemonsData] = useState({})
+  const [userPokemons, setUserPokemons] = useState([])
+  const [allPokemons, setAllPokemons] = useState({})
+  const [boosters, setBoosters] = useState([])
 
   const wallet = useWallet()
-  if (wallet?.details.account != null) {
-    let acount = wallet?.details.account
-    console.log(wallet?.contract)
-    wallet?.contract.getMessage()
-    wallet?.contract.createCollection('col1')  ///fail 
-     //retrun adress collection only if super_admin col1= 0: "0xd8058efe0198ae9dD7D563e1b4938Dcbc86A1F81"
-     //and col2= "0x6D544390Eb535d61e196c87d6B9c80dCD8628Acd"
-    const value = wallet?.contract.allCollections() 
-    console.log(value)
-    const value2= wallet?.contract.allPokemonsOfCollection(0);  //retturn all adress(url) pokemon of one collection
-    console.log(value2)   // pokemon_url ="xy7-10"
 
+  const mintPokemon = (pokemonAddress: string) => {
+    const userAddress: string = wallet?.details?.account || ''
+    if (userAddress === '') return
+    wallet?.contract.mint(userAddress, pokemonAddress)
+    refreshApp()
   }
 
+  const openBoosterById = (boosterId: number) => {
+    const userAddress = wallet?.details?.account || ''
+    if (userAddress === '') return
+    return wallet?.contract.openBoosterFor(boosterId, userAddress)
+  }
+
+  const retrieveAllPokemons = () => {
+    wallet?.contract.getAllPokemons().then(pokemons => {
+      const formatedPokemons = pokemons.map(formatPokemonData)
+      const result = allPokemons
+      formatedPokemons.forEach(pokemon => {
+        result[pokemon.address] = pokemon
+      })
+      console.log(result)
+      setAllPokemons(result)
+    })
+  }
+
+  const refreshApp = () => {
+    retrieveUserPokemons()
+    retrieveBoosters()
+    retrieveAllPokemons()
+  }
+
+  const retrieveUserPokemons = () => {
+    const userAdress: string = wallet?.details?.account || ''
+    if (userAdress === '') return
+    wallet?.contract.allCardsUser(userAdress).then(pokemons => {
+      setUserPokemons(pokemons.map(formatPokemonData))
+    })
+    const date: string = Date.now().toString()
+    console.log(date)
+    console.log(userPokemons)
+  }
+
+  const retrieveBoosters = () => {
+    wallet?.contract.getBoosters().then(boostersData => {
+      if (!boostersData) return
+      const formatedBoosters = boostersData.map(formatBoosterData)
+      const formatedCardsInBoosters = formatedBoosters.map(booster => {
+        const cards: any[] = booster.cardsIds.map(
+          (cardId: string) => allPokemons[cardId]
+        )
+        return { id: booster.collectionId, pokemons: cards }
+      })
+      setBoosters(formatedCardsInBoosters)
+    })
+    console.log(boosters)
+  }
+
+  const buyPokemon = () => {
+    console.log('buying pokemon from app')
+  }
+
+  const renouncePokemonOwnership = (pokemonAddress: string) => {
+    console.log('renouncing pokemon ownership from app')
+    wallet?.contract.abandonPokemon(pokemonAddress).then((success: boolean) => {
+      if (success) {
+        console.log('user renounced ownership of pokemon: ' + pokemonAddress)
+        refreshApp()
+      }
+    })
+  }
+
+  useEffect(() => {
+    refreshApp()
+  }, [])
+
+  const addToPokemonsData = (pokemon: any) => {
+    const currentPokemonsData = pokemonsData
+    currentPokemonsData[pokemon.id] = pokemon
+    setPokemonsData(currentPokemonsData)
+  }
+
+  const getPokemonInfoById = (id: string) => pokemonsData[id]
 
   return (
-    <div className={styles.body}>
-      <h1>Welcome to Pokémon TCG</h1>
-      <div>
-        <PokemonList cartes={pokemonData?.cards} />
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home wallet={wallet} />} />
+          <Route
+            path="me"
+            element={<User wallet={wallet} myPokemons={userPokemons} />}
+          />
+          <Route
+            path="boosters"
+            element={
+              <BoostersList
+                boosters={boosters}
+                openBoosterById={openBoosterById}
+              />
+            }
+          />
+          <Route
+            path="collections"
+            element={<PokemonCollectionsPresenter wallet={wallet} />}
+          />
+          <Route
+            path="/pokemon/:id"
+            element={
+              <PokemonDetails
+                getPokemonInfoById={getPokemonInfoById}
+                currentUser={wallet?.details?.account}
+                mintPokemon={mintPokemon}
+                buyPokemon={buyPokemon}
+                renouncePokemonOwnership={renouncePokemonOwnership}
+              />
+            }
+          />
+          <Route
+            path="/collection/:id"
+            element={
+              <PokemonCollectionPresenter
+                wallet={wallet}
+                savePokemonData={addToPokemonsData}
+              />
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-

@@ -1,0 +1,33 @@
+.pokemon-card-details {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    margin: auto;
+    width: max-content;
+}
+
+.pokemon-card-details-img {
+    width: 50%;
+}
+
+.pokemon-card-details-button {
+  width: 95%;
+  margin: auto;
+}
+
+.pokemon-card-details-button button {
+    width: 100%;
+    background-color: #212529;
+}
+
+.pokemon-card-details-button:hover button {
+  background-color: green;
+}
+
+.pokemon-card-details > img {
+    width: 300px;
+    height: 500px;
+    margin: 10px;
+}

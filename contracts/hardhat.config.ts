@@ -10,6 +10,16 @@ import 'hardhat-abi-exporter'
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
+  networks: {
+    hardhat: {
+      chainId: 31337,
+      allowUnlimitedContractSize: true,
+    },
+    localhost: {
+      chainId: 31337,
+      allowUnlimitedContractSize: true,
+    }
+  },
   solidity: '0.8.19',
   paths: {
     deploy: './deploy',
@@ -32,6 +42,7 @@ const config: HardhatUserConfig = {
   typechain: {
     outDir: '../typechain',
   },
+ 
 }
 
 export default config

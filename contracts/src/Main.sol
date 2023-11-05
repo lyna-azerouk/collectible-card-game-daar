@@ -4,78 +4,232 @@
 pragma solidity ^0.8.19;
 
 import "./Collection.sol";
-import "./Ownable.sol";
 import "./PokemonOwenrship.sol";
+import "./Struct.sol";
 
-contract Main is Ownable{
-  int private count;
-  address admin;
-  mapping(int => Collection) public pokemonCollections;
+contract Main is PokemonOwenership {
+  address private admin;
+  mapping (int => Booster) private boosters;
+  int private boostersCount = 0;
+  uint256 private _pokemonCount = 0;
 
   constructor() {
-    count = 0;
     admin = msg.sender;
-    pokemonCollections[0] =new Collection("colectio1", 0);
-    pokemonCollections[1] =new Collection("colectio2", 1);
-    pokemonCollections[0].addCarte('xy7-10');
-    count=2;
   }
 
-  function createCollection(string memory name) public  {
-    pokemonCollections[count++] = new Collection(name, 0);
+  function createCollection(
+    string memory name,
+    string memory code,
+    string memory imgUrl
+  ) external returns (Collection) {
+    Collection collection = new Collection(name, 0, code, imgUrl);
+    pokemonCollections[collectionCount] = collection;
+
+    collectionCount++;
+
+    return collection;
   }
 
-  function getMessage() public view returns (string memory)  {
-        return "Hello World";
+  function allPokemonsFrom(
+    int collectionId
+  ) public view returns (address[] memory) {
+    return pokemonCollections[collectionId].getPokemons();
   }
 
-  /**
-    Add a carte to a collection 
-   */
-  function add_carte_to_collection(int collection_id, string memory url_carte) public onlySuperAdmin() {
-    //require(pokemonCollections[collection_id]  !=  existe);
-    pokemonCollections[collection_id].addCarte(url_carte);
+  function addCardToCollection(
+    int collectionId,
+    string memory pokemonId,
+    string memory imgUrl
+  ) external returns (bool) {
+    pokemonCollections[collectionId].addCard(pokemonId, imgUrl);
+    _pokemonCount++;
+    return true; // s'assurer que la carte a bien été inseree
   }
 
-  /**
-    Get ALL COLECTION 
-   */
-  function allCollections() public   onlySuperAdmin() view returns (Collection[] memory)  {
-        Collection[] memory collections = new Collection[](2);
-        uint256 counter =0;
-        for (int i = 0; i < count; i++) {
-            collections[counter] = pokemonCollections[i];
-            counter++;
-        }
-        return collections; //adress de la collection !!
-  }
+  function collectionsCodes() public view returns (string[] memory) {
+    string[] memory codes = new string[](uint256(collectionCount));
 
+    uint256 iUint = 0;
+    for (int i = 0; i < collectionCount; i++) {
 
-    /**
-      Get ALL Pokemon of collection  
-    */
-    function allPokemonsOfCollection(int collectionId) public onlySuperAdmin() view returns(string [] memory){
-          Collection collection = pokemonCollections[collectionId];
-        require(collectionId >= 0 && collectionId < count, "Invalid collection ID");
-        string[] memory result = new string[](uint256(collection.cardCount()));
-        uint256 index = 0;
-        for (int i = 0; i < collection.cardCount(); i++) {
-            result[index] = collection.getPokemonById(i);
-            index++;
-        }
-
-        // Resize the result array to remove any empty slots
-        assembly {
-            mstore(result, index)
-        }
-
-        return result;
+      codes[iUint] = pokemonCollections[i].getCode();
+      iUint++;
     }
+    return codes;
+  }
 
+  /** Convert Pokemon object to PokemonInfo object
+   * Extract info from Pokemon object.
+   * @param collectionId id de la collection
+   * @param collection collection
+   */
+  function collectionToCollectionInfo(
+    int collectionId,
+    Collection collection
+  ) public view returns (CollectionInfo memory) {
+    return
+      CollectionInfo(
+        collectionId,
+        collection.getName(),
+        collection.getCode(),
+        collection.getImgUrl(),
+        collection.cardCount()
+      );
+  }
 
-   modifier onlySuperAdmin() {
-        require(msg.sender != admin, "Only Super Admin can call this function");
-        _;
+  function allCollections() public view returns (CollectionInfo[] memory) {
+    CollectionInfo[] memory collectionsResult = new CollectionInfo[](
+      uint256(collectionCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < collectionCount; i++) {
+
+      collectionsResult[iUint] = collectionToCollectionInfo(
+        i,
+        pokemonCollections[i]
+      );
+      iUint++;
     }
- 
+    return collectionsResult;
+  }
+
+  function getAllPokemons() public view returns (PokemonInfo[] memory) {
+    return allPokemons();
+  }
+
+  function allPokemons() private view returns (PokemonInfo[] memory) {
+    PokemonInfo[] memory pokemonsResult = new PokemonInfo[](
+      uint256(pokemonCount()));
+    uint256 iUint = 0;
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        pokemonsResult[iUint] = pokemonToPokemonInfo(pokemons[j_uint]);
+        iUint++;
+        j_uint++;
+      }
+    }
+    return pokemonsResult;
+  }
+
+  function pokemonCount() private view returns (uint256) {
+    return _pokemonCount;
+  }
+  
+
+  function pokemonToPokemonInfo(
+    Pokemon pokemon
+  ) public view returns (PokemonInfo memory) {
+    return PokemonInfo(
+      address(pokemon), 
+      pokemon.getId(), 
+      pokemon.getImgUrl(), 
+      pokemon.owner());
+  }
+
+  function allPokemonsOfCollection(
+    int collectionId
+  ) public view returns (PokemonInfo[] memory) {
+    Collection collection = pokemonCollections[collectionId];
+    Pokemon[] memory pokemons = collection.pokemonsData();
+    PokemonInfo[] memory pokemonsResult = new PokemonInfo[](
+      uint256(collection.cardCount())
+    );
+    uint256 iUint = 0;
+    for (int i = 0; i < collection.cardCount(); i++) {
+      pokemonsResult[iUint]= pokemonToPokemonInfo(pokemons[iUint]);
+      iUint++;
+    }
+    return pokemonsResult;
+  }
+
+  function allCardsUser(
+    address _owner
+  ) public view virtual returns (PokemonInfo[] memory) {
+    uint256 cardCount = balanceOf(_owner);
+    PokemonInfo[] memory userPokemons = new PokemonInfo[]((cardCount));
+    Pokemon[] memory result;
+    uint256 j = 0;
+    for (int i = 0; i < collectionCount; i++) {
+
+      Collection collection = pokemonCollections[i];
+      result = (collection.userCards(_owner));
+      uint256 index = 0;
+      while (index < result.length) {
+        userPokemons[j] = pokemonToPokemonInfo(result[index]);
+        index++;
+        j++;
+      }
+    }
+    return userPokemons;
+  }
+
+  function createBooster(
+    int collectionId,
+    address[] memory cardsIds
+  ) external returns (Booster memory) {
+    Booster memory booster = Booster(collectionId, cardsIds);
+    boosters[boostersCount] = booster;
+    boostersCount++;
+    return booster;
+  }
+
+
+  function getBoosters() public view returns (Booster[] memory)
+  {
+    Booster[] memory boostersResult = new Booster[](
+      uint256(boostersCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < boostersCount; i++) {
+      boostersResult[iUint] = boosters[i];
+      iUint++;
+    }
+    return boostersResult;
+  }
+
+  function openBoosterFor(int boosterId, address usrAddress) external returns (bool) {
+    // user which open the booster become the owner of the cards
+    Booster memory booster = boosters[boosterId];
+    for (uint256 i = 0; i < booster.cardsIds.length; i++) {
+      address cardId = booster.cardsIds[i];
+      Pokemon pokemon = Pokemon(cardId);
+      mint(usrAddress, address(pokemon));
+    }
+    return true;
+  }
+
+  function getPokemonInfo(address pokemonAddress) public view returns (PokemonInfo memory) {
+    // find pokemon in all collections
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        if (address(pokemons[j_uint]) == pokemonAddress) {
+          return pokemonToPokemonInfo(pokemons[j_uint]);
+        }
+        j_uint++;
+      }
+    }
+    
+  }
+
+  function abandonPokemon(address pokemonAddress) external returns(bool) {
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        if (address(pokemons[j_uint]) == pokemonAddress) {
+          pokemons[j_uint].renounceOwnershipFor(msg.sender);
+          return true;
+        }
+        j_uint++;
+      }
+    }
+    return false;
+  }
+
+
 }

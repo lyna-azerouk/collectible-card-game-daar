@@ -3,79 +3,139 @@
 pragma solidity ^0.8.19;
 
 import "./Ownable.sol";
+import "./ERC721.sol";
 import "./Pokemon.sol";
-import "./erc721.sol";
-import "./Ownable.sol";
+import "./Struct.sol";
 
-contract Collection  is ERC721, Ownable{ 
+contract Collection {
   string public name;
-  int public cardCount;  
-  mapping(int  => string) public  pokmeons;
+  string public code;
+  string public imgUrl;
+  int public cardCount; //taile de la colection
+  mapping(int => Pokemon) public pokemons;
 
-  constructor(string memory _name, int _cardCount) {
+  constructor(
+    string memory _name, 
+    int _cardCount, 
+    string memory _code, 
+    string memory _imgUrl) {
+
     name = _name;
     cardCount = _cardCount;
-  }
-  function addCarte(string memory id) public onlyOwner{
-    pokmeons[cardCount]=id;
-    cardCount++;
+    code = _code;
+    imgUrl = _imgUrl;
   }
 
-  function getPokemonById(int index) public view returns (string memory) {
-    require(index >= 0 && index < cardCount, "Invalid index");
-    return pokmeons[index];
+  function addCard(string memory id, string memory pokemonImgUrl) public {
+    Pokemon p = new Pokemon(id, pokemonImgUrl);
+    pokemons[cardCount++] = p;
+  }
+
+  function pokemonsData() public view returns (Pokemon[] memory) {
+    Pokemon[] memory pokemonsResult = new Pokemon[](uint256(cardCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < cardCount; i++) {
+      pokemonsResult[iUint] = pokemons[i];
+      iUint++;
+    }
+    return pokemonsResult;
+  }
+
+  function getName() public view returns (string memory) {
+    return name;
+  }
+
+  function getCode() public view returns (string memory) {
+    return code;
+  }
+
+  function getImgUrl() public view returns (string memory) {
+    return imgUrl;
+  }
+
+  function getPokemons() public view returns (address[] memory) {
+    address[] memory pokemonsResult = new address[](uint256(cardCount));
+    uint256 iUint = 0;
+    for (int i = 0; i < cardCount; i++) {
+      pokemonsResult[iUint] = address(pokemons[i]);
+      iUint++;
+    }
+    return pokemonsResult;
+  }
+
+  function mintAux(
+    address receiver,
+    address pokemonAdress
+  ) public returns (bool) {
+    for (int i = 0; i < cardCount; i++) {
+      // pokemon trouver.
+      if (address(pokemons[i]) == pokemonAdress) {
+        // est ce qu'il est libre ?
+        if (!pokemons[i].hasOwner()) {
+          // si oui, on mint.
+          pokemons[i].setOwner(receiver);
+        }
+      }
+    }
+  }
+
+  function userCards(
+    address owner
+  ) public view virtual returns (Pokemon[] memory) {
+    uint256 numberCardsUser = balanceOf((owner));
+    Pokemon[] memory allcards = new Pokemon[](numberCardsUser);
+    uint256 index = 0;
+    for (int i = 0; i < cardCount; i++) {
+      if (pokemons[i].owner() == owner) {
+        allcards[index] =pokemons[i];
+        index++;
+      }
+    }
+
+    return allcards;
+  }
+
+  function balanceOf(address _owner) public view virtual returns (uint256) {
+    uint256 count = 0;
+    for (int i = 0; i < cardCount; i++) {
+      if (pokemons[i].owner() == _owner) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  function ownerOf(address _tokenId) public view virtual returns (address) {
+    for (int i = 0; i < cardCount; i++) {
+      if (address(pokemons[i]) == _tokenId) {
+        return pokemons[i].owner();
+      }
+    }
+    return address(0);
+  }
+
+  function allPoekmons() public view virtual returns (string[] memory) {
+    string[] memory result = new string[](uint256(cardCount));
+    uint256 index = 0;
+    for (int i = 0; i < cardCount; i++) {
+      result[index] = pokemons[i].getId();
+      index++;
+    }
+    return result;
+  }
+
+  function pokemonFromadress(
+    address adressPokemon
+  ) public view returns (string memory) {
+    for (int i = 0; i < cardCount; i++) {
+      if (adressPokemon == address(pokemons[i])) {
+        return pokemons[i].getId();
+      }
+    }
+    return "";
+  }
+
+  function getCard(int indice) public returns (Pokemon) {
+    return pokemons[indice];
+  }
 }
-  
-  /*
-    Returns the number of tokens in owner's account.
-  */
-  function balanceOf(address _owner)  public virtual override   returns (uint256) {   
-  }
-
-  /**
-  Returns the owner of the tokenId token.
-  */
-  function ownerOf(uint256 _tokenId) public virtual  override returns (address) {
-  }
-
-  /**
-  Transfers tokenId token from from to to.
-  */
-  function transferFrom(address _from, address _to, uint256 _tokenId) public virtual override payable {
-  }
-
-  /**
-   Returns the account approved for tokenId token.
-   */
-  function approve(address _approved, uint256 _tokenId) public virtual  override payable {
-    
-  }
-
-  function supportsInterface(bytes4 interfaceId) external view returns (bool){
-    
-  }
-
-
-
-}
-
-
-
-/*
-
-  Main: 
-    - Collections
-        - Collection1
-            - Pokemon1
-                - meta_donnee (id_sur_api)
-            - Pokemon2
-            - Pokemon3
-            ...
-            - Pokemonn
-        - Collection2
-        - Coollection3
-    - pokemon_ownership: mapping (owner_address => pokemon_adress)
-
-
-
-*/
