@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './PokemonDetails.style.css'
+import { DEFAULT_ADDRESS } from '@/const'
 
 const PokemonDetails = props => {
   const [pokemonData, setPokemonData] = useState({})
@@ -36,7 +37,7 @@ const PokemonCardDetail = (props: any) => {
   }
 
   const renouncePokemonOwnership = () => {
-    props.renouncePokemonOwnership()
+    props.renouncePokemonOwnership(pokemonData.address)
   }
 
   const getAppropriateButton = () => {
@@ -59,8 +60,7 @@ const PokemonCardDetail = (props: any) => {
     )
 
     const pokemonOwnerByCurrentUser = props.currentUser === pokemonData.owner
-    const pokemonIsFree =
-      pokemonData.owner === '0x0000000000000000000000000000000000000000'
+    const pokemonIsFree = pokemonData.owner === DEFAULT_ADDRESS
 
     if (pokemonIsFree) {
       return button1

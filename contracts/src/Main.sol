@@ -215,5 +215,21 @@ contract Main is PokemonOwenership {
     
   }
 
+  function abandonPokemon(address pokemonAddress) external returns(bool) {
+    for (int i = 0; i < collectionCount; i++) {
+      Collection collection = pokemonCollections[i];
+      Pokemon[] memory pokemons = collection.pokemonsData();
+      uint256 j_uint = 0;
+      for (int j = 0; j < collection.cardCount(); j++) {
+        if (address(pokemons[j_uint]) == pokemonAddress) {
+          pokemons[j_uint].renounceOwnershipFor(msg.sender);
+          return true;
+        }
+        j_uint++;
+      }
+    }
+    return false;
+  }
+
 
 }

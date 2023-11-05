@@ -105,6 +105,9 @@ export const App = () => {
     wallet?.contract.allCardsUser(userAdress).then(pokemons => {
       setUserPokemons(pokemons.map(formatPokemonData))
     })
+    const date: string = Date.now().toString()
+    console.log(date)
+    console.log(userPokemons)
   }
 
   const retrieveBoosters = () => {
@@ -126,13 +129,19 @@ export const App = () => {
     console.log('buying pokemon from app')
   }
 
-  const renouncePokemonOwnership = () => {
+  const renouncePokemonOwnership = (pokemonAddress: string) => {
     console.log('renouncing pokemon ownership from app')
+    wallet?.contract.abandonPokemon(pokemonAddress).then((success: boolean) => {
+      if (success) {
+        console.log('user renounced ownership of pokemon: ' + pokemonAddress)
+        refreshApp()
+      }
+    })
   }
 
   useEffect(() => {
     refreshApp()
-  }, [wallet])
+  }, [])
 
   const addToPokemonsData = (pokemon: any) => {
     const currentPokemonsData = pokemonsData
@@ -141,9 +150,6 @@ export const App = () => {
   }
 
   const getPokemonInfoById = (id: string) => pokemonsData[id]
-
-  const getPokemonInfoByaddress = (address: string) =>
-    allPokemons['0x8Ff3801288a85ea261E4277d44E1131Ea736F77B']
 
   return (
     <BrowserRouter>

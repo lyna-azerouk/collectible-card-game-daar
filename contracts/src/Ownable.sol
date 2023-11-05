@@ -41,6 +41,12 @@ contract Ownable {
     _owner = address(0);
   }
 
+  function renounceOwnershipFor(address userAddress) public {
+    require(_owner == userAddress);
+    emit OwnershipTransferred(_owner, address(0));
+    _owner = address(0);
+  }
+
   function transferOwnership(address newOwner) public onlyOwner {
     _transferOwnership(newOwner);
   }
