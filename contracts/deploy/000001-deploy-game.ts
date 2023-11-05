@@ -13,13 +13,12 @@ const deployer: DeployFunction = async hre => {
   const collections0 = getCollectionFromApi();
   collections0.slice(0, 5).forEach(async collection => {
       await main.createCollection(collection.name, collection.code, collection.img);
-  })    
+  })                 
 
   let collectionsCode : any[] = await main.collectionsCodes();
   /**   
    * Rajout des pokemons from api to collections
    */ 
-
   setTimeout(async () => {
     //ajout des pokemons dans la blockchain
     const pokemons = getPokemonFromApi();

@@ -14,7 +14,6 @@ import {
 } from './components/pokemon/pokemon-collection/PokemonCollection.component'
 import { formatBoosterData, formatPokemonData } from './utile'
 import { BoostersList } from './components/pokemon/booster/Booster.component'
-
 // WALLET
 type Canceler = () => void
 const useAffect = (
@@ -69,13 +68,14 @@ export const App = () => {
     wallet?.contract.mint(userAddress, pokemonAddress)
     refreshApp()
   }
-
   const openBoosterById = (boosterId: number) => {
     const userAddress = wallet?.details?.account || ''
     if (userAddress === '') return
-    return wallet?.contract.openBoosterFor(boosterId, userAddress)
+    wallet?.contract.openBoosterFor(boosterId, userAddress).then(() => {
+      refreshApp()
+    })
+    return true
   }
-
   const retrieveAllPokemons = () => {
     wallet?.contract.getAllPokemons().then(pokemons => {
       const formatedPokemons = pokemons.map(formatPokemonData)
@@ -122,30 +122,28 @@ export const App = () => {
 
   const buyPokemon = () => {
     console.log('buying pokemon from app')
+    refreshApp()
   }
 
   const renouncePokemonOwnership = (pokemonAddress: string) => {
     console.log('renouncing pokemon ownership from app')
     wallet?.contract.abandonPokemon(pokemonAddress).then((success: boolean) => {
-      if (success) {
-        console.log('user renounced ownership of pokemon: ' + pokemonAddress)
-        refreshApp()
-      }
+      refreshApp()
     })
   }
 
   useEffect(() => {
     refreshApp()
-  }, [])
+  }, [wallet])
 
   const addToPokemonsData = (pokemon: any) => {
     const currentPokemonsData = pokemonsData
     currentPokemonsData[pokemon.id] = pokemon
     setPokemonsData(currentPokemonsData)
+    refreshApp()
   }
 
   const getPokemonInfoById = (id: string) => pokemonsData[id]
-
   return (
     <BrowserRouter>
       <Routes>

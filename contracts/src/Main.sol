@@ -193,9 +193,10 @@ contract Main is PokemonOwenership {
     Booster memory booster = boosters[boosterId];
     for (uint256 i = 0; i < booster.cardsIds.length; i++) {
       address cardId = booster.cardsIds[i];
-      Pokemon pokemon = Pokemon(cardId);
-      mint(usrAddress, address(pokemon));
+      mint(usrAddress, cardId);
     }
+    // delete booster
+    delete boosters[boosterId];
     return true;
   }
 
